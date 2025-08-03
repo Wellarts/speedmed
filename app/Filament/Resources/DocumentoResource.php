@@ -87,6 +87,7 @@ class DocumentoResource extends Resource
                             '5' => 'Exames',
                             '6' => 'Orientações',
                             '7' => 'Outros',
+                            '8' => 'Laudo',
                             default => 'Desconhecido',
                         };
                     })
