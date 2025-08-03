@@ -30,7 +30,7 @@
             transform: translate(-50%, -50%);
             z-index: -1;
             /* Send to back */
-            opacity: 0.5;
+          /*  opacity: 0.5; */
         }
 
         .header-title {
