@@ -417,6 +417,16 @@
             <h2>Dados Vitais</h2>
             <table>
                 <tr>
+                    @if ($prontuario->paciente->genero == '2')
+                    <td colspan="400" style="width: 100%;">                   
+                        <div class="field-pair">
+                            <span class="label">DUM:</span>
+                            <span class="value">{{ Carbon\Carbon::parse($prontuario->dum)->format('d/m/Y') ?? 'Não informado' }}</span>
+                        </div>                   
+                    </td>
+                     @endif
+                </tr>
+                <tr> 
                     <td style="width: 25%;">
                         <div class="field-pair">
                             <span class="label">PA:</span>
