@@ -20,6 +20,8 @@ use App\Models\Medicamento;
 use App\Models\SolicitacaoExame;
 use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Forms\Components\Modal;
+use Illuminate\Support\Carbon;
 
 class AtendimentoClinicoNewResource extends Resource
 {
@@ -97,116 +99,200 @@ class AtendimentoClinicoNewResource extends Resource
                                 }
                             })
                             ->createOptionForm([
-                                Forms\Components\TextInput::make('nome')
-                                    ->required(true)
-                                    ->maxLength(100)
-
-
-                                    ->label('Nome Completo')
-                                    ->columnSpanFull(),
-                                Forms\Components\Grid::make(['default' => 2, 'md' => 3])
+                                Forms\Components\Fieldset::make('Dados Pessoais')
                                     ->schema([
-                                        Forms\Components\DatePicker::make('data_nascimento')
+                                        Forms\Components\TextInput::make('nome')
+                                            ->required(true)
+                                            ->maxLength(100)
+                                            ->label('Nome Completo')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Grid::make(['
+                                                default' => 1, // 1 coluna em dispositivos móveis
+                                                'md' => 2,      // 2 colunas em tablets
+                                                'lg' => 3,      // 3 colunas em desktops
+                                            ])
+                                            ->schema([
+                                                Forms\Components\DatePicker::make('data_nascimento')
+                                                    ->required(false)
+                                                    ->label('Data de Nascimento'),
+                                                Forms\Components\TextInput::make('cpf')
+                                                    ->required(false)
+                                                    ->maxLength(14)
+                                                    ->mask('999.999.999-99')
+                                                    ->unique(ignoreRecord: true)
+                                                    ->label('CPF')
+                                                    ->rule(function () {
+                                                        return function ($attribute, $value, $fail) {
+                                                            $cpf = preg_replace('/\D/', '', $value);
+                                                            if (strlen($cpf) !== 11) {
+                                                                return $fail('O CPF deve conter 11 dígitos.');
+                                                            }
+                                                            if (preg_match('/(\d)\1{10}/', $cpf)) {
+                                                                return $fail('CPF inválido.');
+                                                            }
+                                                            for ($t = 9; $t < 11; $t++) {
+                                                                $d = 0;
+                                                                for ($c = 0; $c < $t; $c++) {
+                                                                    $d += $cpf[$c] * (($t + 1) - $c);
+                                                                }
+                                                                $d = ((10 * $d) % 11) % 10;
+                                                                if ($cpf[$c] != $d) {
+                                                                    return $fail('CPF inválido.');
+                                                                }
+                                                            }
+                                                        };
+                                                    }),
+                                                Forms\Components\TextInput::make('rg')
+                                                    ->maxLength(20)
+                                                    ->nullable()
+                                                    ->label('RG'),
+                                            ]),
+                                        Forms\Components\Grid::make([
+                                            'default' => 1, // 1 coluna em dispositivos móveis
+                                            'md' => 2,      // 2 colunas em tablets
+                                            'lg' => 3,      // 3 colunas em desktops
+                                        ])
+                                            ->schema([
+                                                Forms\Components\Select::make('genero')
+                                                    ->options([
+                                                        1 => 'Masculino',
+                                                        2 => 'Feminino',
+                                                        3 => 'Outro',
+                                                    ])
+                                                    ->required(false)
+                                                    ->label('Gênero'),
+                                                Forms\Components\Select::make('estado_civil')
+                                                    ->options([
+                                                        1 => 'Solteiro',
+                                                        2 => 'Casado',
+                                                        3 => 'Divorciado',
+                                                        4 => 'Viúvo',
+                                                    ])
+                                                    ->required(false)
+                                                    ->label('Estado Civil'),
+                                                Forms\Components\TextInput::make('profissao')
+                                                    ->maxLength(100)
+                                                    ->nullable()
+                                                    ->label('Profissão'),
+                                            ]),
+                                    ])
+                                    ->columns(['default' => 1]),
+
+                                Forms\Components\Fieldset::make('Endereço')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('endereco_completo')
                                             ->required(false)
-                                            ->label('Data de Nascimento'),
-                                        Forms\Components\TextInput::make('cpf')
-                                            ->required(false)
-                                            ->maxLength(14)
-                                            ->mask('999.999.999-99')
-                                            ->unique(ignoreRecord: true)
-                                            ->label('CPF')
-                                            ->rule(function () {
-                                                return function ($attribute, $value, $fail) {
-                                                    $cpf = preg_replace('/\D/', '', $value);
-                                                    if (strlen($cpf) !== 11) {
-                                                        return $fail('O CPF deve conter 11 dígitos.');
-                                                    }
-                                                    if (preg_match('/(\d)\1{10}/', $cpf)) {
-                                                        return $fail('CPF inválido.');
-                                                    }
-                                                    for ($t = 9; $t < 11; $t++) {
-                                                        $d = 0;
-                                                        for ($c = 0; $c < $t; $c++) {
-                                                            $d += $cpf[$c] * (($t + 1) - $c);
+                                            ->maxLength(200)
+                                            ->label('Endereço Completo')
+                                            ->columnSpanFull(),
+                                        Forms\Components\Grid::make([
+                                            'default' => 1, // 1 coluna em dispositivos móveis
+                                            'md' => 2,      // 2 colunas em tablets
+                                            'lg' => 2,      // 3 colunas em desktops
+                                        ])
+                                            ->schema([
+                                                Forms\Components\Select::make('estado_id')
+                                                    ->label('Estado')
+                                                    ->native(false)
+                                                    ->searchable()
+                                                    ->required(false)
+                                                    ->options(\App\Models\Estado::all()->pluck('nome', 'id')->toArray())
+                                                    ->live(),
+                                                Forms\Components\Select::make('cidade_id')
+                                                    ->label('Cidade')
+                                                    ->native(false)
+                                                    ->searchable()
+                                                    ->required(false)
+                                                    ->options(function (callable $get) {
+                                                        $estado = \App\Models\Estado::find($get('estado_id'));
+                                                        if (!$estado) {
+                                                            return [];
                                                         }
-                                                        $d = ((10 * $d) % 11) % 10;
-                                                        if ($cpf[$c] != $d) {
-                                                            return $fail('CPF inválido.');
-                                                        }
-                                                    }
-                                                };
-                                            }),
-                                        Forms\Components\TextInput::make('rg')
-                                            ->maxLength(20)
-                                            ->nullable()
-                                            ->label('RG'),
+                                                        return $estado->cidade->pluck('nome', 'id');
+                                                    })
+                                                    ->reactive(),
+                                            ]),
+                                    ])
+                                    ->columns(['default' => 1]),
+
+                                Forms\Components\Fieldset::make('Contato')
+                                    ->schema([
+                                        Forms\Components\Grid::make([
+                                            'default' => 1, // 1 coluna em dispositivos móveis
+                                            'md' => 2,      // 2 colunas em tablets
+                                            'lg' => 2,      // 3 colunas em desktops
+                                        ])
+                                            ->schema([
+                                                Forms\Components\TextInput::make('telefone')
+                                                    ->required(false)
+                                                    ->maxLength(20)
+                                                    ->mask('(99) 99999-9999')
+                                                    ->label('Telefone'),
+                                                Forms\Components\TextInput::make('email')
+                                                    ->email()
+                                                    ->required(false)
+                                                    ->maxLength(100)
+                                                    ->unique(ignoreRecord: true)
+                                                    ->label('Email'),
+                                            ]),
+                                    ])
+                                    ->columns([
+                                        'default' => 1, // 1 coluna em dispositivos móveis
+                                        'md' => 2,      // 2 colunas em tablets
+                                        'lg' => 3,      // 3 colunas em desktops
                                     ]),
-                                Forms\Components\Grid::make(['default' => 2, 'md' => 3])
+
+                                Forms\Components\Fieldset::make('Emergência')
                                     ->schema([
-                                        Forms\Components\Select::make('genero')
-                                            ->options([
-                                                1 => 'Masculino',
-                                                2 => 'Feminino',
-                                                3 => 'Outro',
-                                            ])
-                                            ->required(false)
-                                            ->label('Gênero'),
-                                        Forms\Components\Select::make('estado_civil')
-                                            ->options([
-                                                1 => 'Solteiro',
-                                                2 => 'Casado',
-                                                3 => 'Divorciado',
-                                                4 => 'Viúvo',
-                                            ])
-                                            ->required(false)
-                                            ->label('Estado Civil'),
-                                        Forms\Components\TextInput::make('profissao')
+                                        Forms\Components\Grid::make([
+                                            'default' => 1, // 1 coluna em dispositivos móveis
+                                            'md' => 2,      // 2 colunas em tablets
+                                            'lg' => 2,      // 3 colunas em desktops
+                                        ])
+                                            ->schema([
+                                                Forms\Components\TextInput::make('contato_emergencia')
+                                                    ->required(false)
+                                                    ->maxLength(100)
+                                                    ->mask('(99) 99999-9999')
+                                                    ->label('Contato de Emergência'),
+                                                Forms\Components\Select::make('grau_parentesco')
+                                                    ->options([
+                                                        1 => 'Pai/Mãe',
+                                                        2 => 'Filho(a)',
+                                                        3 => 'Cônjuge',
+                                                        4 => 'Outro',
+                                                    ])
+                                                    ->required(false)
+                                                    ->label('Grau de Parentesco'),
+                                            ]),
+                                    ])
+                                    ->columns([
+                                        'default' => 1, // 1 coluna em dispositivos móveis
+                                        'md' => 2,      // 2 colunas em tablets
+                                        'lg' => 3,      // 3 colunas em desktops
+                                    ]),
+
+                                Forms\Components\Fieldset::make('Convênio')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('convenio')
                                             ->maxLength(100)
                                             ->nullable()
-                                            ->label('Profissão'),
-                                        Forms\Components\Fieldset::make('Endereço')
-                                            ->schema([
-                                                Forms\Components\TextInput::make('endereco_completo')
-                                                    ->required(false)
-                                                    ->maxLength(200)
-                                                    ->label('Endereço Completo')
-                                                    ->columnSpanFull(),
-                                                Forms\Components\Grid::make(['default' => 1, 'md' => 2])
-                                                    ->schema([
-                                                        Forms\Components\Select::make('estado_id')
-                                                            ->label('Estado')
-                                                            ->native(false)
-                                                            ->searchable()
-                                                            ->required(false)
-                                                            ->options(Estado::all()->pluck('nome', 'id')->toArray())
-                                                            ->live(),
-                                                        Forms\Components\Select::make('cidade_id')
-                                                            ->label('Cidade')
-                                                            ->native(false)
-                                                            ->searchable()
-                                                            ->required(false)
-                                                            ->options(function (callable $get) {
-                                                                $estado = Estado::find($get('estado_id'));
-                                                                if (!$estado) {
-                                                                    return [];
-                                                                }
-                                                                return $estado->cidade->pluck('nome', 'id');
-                                                            }),
-                                                        Forms\Components\TextInput::make('telefone')
-                                                            ->required(false)
-                                                            ->maxLength(20)
-                                                            ->mask('(99) 99999-9999')
-                                                            ->label('Telefone'),
-
-                                                    ]),
-                                            ])
-                                            ->columns(['default' => 1, 'md' => 1]),
+                                            ->label('Convênio'),
+                                    ])
+                                    ->columns([
+                                        'default' => 1, // 1 coluna em dispositivos móveis
+                                        'md' => 2,      // 2 colunas em tablets
+                                        'lg' => 3,      // 3 colunas em desktops
                                     ]),
                             ]),
                         Forms\Components\DateTimePicker::make('data_hora_atendimento')
                             ->label('Data/Hora do Atendimento')
                             ->default(now()->format('Y-m-d H:i:s'))
                             ->required(),
+
+                        // Define o status como 1 ao criar
+                        Forms\Components\Hidden::make('status')
+                            ->default('1'),
 
                         Forms\Components\Fieldset::make('Queixa Principal e História')
                             ->schema([
@@ -431,20 +517,20 @@ class AtendimentoClinicoNewResource extends Resource
                                     Forms\Components\DatePicker::make('dum')
                                         ->label('DUM')
                                         ->visible(function ($get, $record) {
-                                                // Se estiver editando um registro existente
-                                                if ($record && $record->paciente) {
-                                                    return $record->paciente->genero == 2;
-                                                }
-                                                
-                                                // Se estiver criando um novo registro
-                                                $pacienteId = $get('paciente_id');
-                                                if (!$pacienteId) {
-                                                    return false;
-                                                }
-                                                
-                                                $paciente = \App\Models\Paciente::find($pacienteId);
-                                                return $paciente && $paciente->genero == 2;
-                                            }),
+                                            // Se estiver editando um registro existente
+                                            if ($record && $record->paciente) {
+                                                return $record->paciente->genero == 2;
+                                            }
+
+                                            // Se estiver criando um novo registro
+                                            $pacienteId = $get('paciente_id');
+                                            if (!$pacienteId) {
+                                                return false;
+                                            }
+
+                                            $paciente = \App\Models\Paciente::find($pacienteId);
+                                            return $paciente && $paciente->genero == 2;
+                                        }),
                                     Forms\Components\TextInput::make('pa')
                                         ->label('PA(mmHg)'),
                                     Forms\Components\TextInput::make('peso')
@@ -545,7 +631,7 @@ class AtendimentoClinicoNewResource extends Resource
                                     ->label('Hipótese Diagnóstica')
                                     ->relationship('hipoteseDiagnostica', 'nome')
                                     ->getOptionLabelFromRecordUsing(fn($record) => $record->nome . ' (CID: ' . $record->cid . ')')
-                                    ->required()
+                                    ->required(false)
                                     ->preload()
                                     ->searchable(['nome', 'cid'])
                                     ->multiple(),
@@ -586,7 +672,7 @@ class AtendimentoClinicoNewResource extends Resource
                                     ->label('Data/Hora do Retorno')
                                     ->default(now()->format('Y-m-d H:i:s'))
                                     ->visible(fn($context) => $context == 'edit')
-                                    ->required(),
+                                    ->required(false),
                                 Forms\Components\ToggleButtons::make('status')
                                     ->label('Status do Atendimento')
                                     ->inline()
@@ -606,7 +692,6 @@ class AtendimentoClinicoNewResource extends Resource
                                         '2' => 'success',
                                         '0' => 'danger',
                                     ])
-                                    ->default('1')
                                     ->required(),
                             ])
                             ->columnSpanFull(),
@@ -664,7 +749,7 @@ class AtendimentoClinicoNewResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                
+
                 Tables\Actions\Action::make('Prontuário')
                     ->icon('heroicon-o-document-text')
                     ->color('info')
@@ -672,7 +757,7 @@ class AtendimentoClinicoNewResource extends Resource
                     ->openUrlInNewTab(),
                 Tables\Actions\Action::make('retorno_consulta')
                     ->icon('heroicon-o-check')
-                    ->label(fn($record) => $record->status == '2' ? 'Atendimento Finalizado' : 'Finalizar Atendimento' )
+                    ->label(fn($record) => $record->status == '2' ? 'Atendimento Finalizado' : 'Finalizar Atendimento')
                     ->color(fn($record) => $record->status == '2' ? 'success' : 'info')
                     ->modalHeading('Finalização do Atendimento')
                     ->form([
@@ -691,7 +776,8 @@ class AtendimentoClinicoNewResource extends Resource
                             ->multiple(),
                         Forms\Components\DateTimePicker::make('data_hora_retorno')
                             ->label('Data/Hora do Retorno')
-                            ->required(),
+
+                            ->required(false),
                         Forms\Components\ToggleButtons::make('status')
                             ->label('Status do Atendimento')
                             ->inline()
@@ -717,8 +803,10 @@ class AtendimentoClinicoNewResource extends Resource
                         $form->fill([
                             'evolucao' => $record->evolucao,
                             'anexos_resultados' => $record->anexos_resultados,
-                            'data_hora_retorno' => $record->data_hora_retorno,
-                            'resultado_exames' => $record->resultado_exames,                            
+                            'data_hora_retorno' => $record->data_hora_retorno == null
+                                ? Carbon::now()->format('Y-m-d H:i:s')
+                                : $record->data_hora_retorno,
+                            'resultado_exames' => $record->resultado_exames,
                             'status' => $record->status,
                         ]);
                     })
@@ -727,16 +815,16 @@ class AtendimentoClinicoNewResource extends Resource
                             'anexos_resultados' => $data['anexos_resultados'],
                             'evolucao' => $data['evolucao'],
                             'data_hora_retorno' => $data['data_hora_retorno'],
-                            'resultado_exames' => $data['resultado_exames'],                            
+                            'resultado_exames' => $data['resultado_exames'],
                             'status' => $data['status'],
                         ]);
                     }),
-                    Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make(),
 
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                   // Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

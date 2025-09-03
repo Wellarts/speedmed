@@ -19,9 +19,9 @@ class DocumentoResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
-    protected static ?string $navigationGroup = 'Declarações/Outros';
+    protected static ?string $navigationGroup = 'Atendimentos';
 
-    protected static string $modalWidth = 'full';
+    protected static ?string $navigationLabel = 'Atestados/Outros';
 
     protected static ?int $navigationSort = 3;
 
@@ -39,9 +39,8 @@ class DocumentoResource extends Resource
                                 '5' => 'Exames',
                                 '6' => 'Orientações',
                                 '7' => 'Outros',
-                            ])                         
-                           
-                           
+                                '8' => 'Laudo',
+                            ])
                             ->default('2')
                             ->required(),
                     
@@ -87,7 +86,6 @@ class DocumentoResource extends Resource
                             '5' => 'Exames',
                             '6' => 'Orientações',
                             '7' => 'Outros',
-                            '8' => 'Laudo',
                             default => 'Desconhecido',
                         };
                     })

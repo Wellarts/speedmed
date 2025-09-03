@@ -41,8 +41,8 @@ class ExameResource extends Resource
                 Forms\Components\Select::make('tipo')
                     ->label('Tipo')
                     ->options([
-                        '1' => 'Laboratorial',
-                        '2' => 'Imagem',
+                        'Laboratorial' => 'Laboratorial',
+                        'Imagem' => 'Imagem',
                         
                     ])
                     ->required()

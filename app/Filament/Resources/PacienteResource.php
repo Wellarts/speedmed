@@ -35,7 +35,12 @@ class PacienteResource extends Resource
                             ->maxLength(100)
                             ->label('Nome Completo')
                             ->columnSpanFull(),
-                        Forms\Components\Grid::make(['default' => 2, 'md' => 3])
+                        Forms\Components\Grid::make([
+                            'default' => 1, // 1 coluna em dispositivos móveis
+                            'md' => 2,      // 2 colunas em tablets
+                            'lg' => 3,      // 3 colunas em desktops
+
+                        ])
                             ->schema([
                                 Forms\Components\DatePicker::make('data_nascimento')
                                     ->required(false)
@@ -79,7 +84,11 @@ class PacienteResource extends Resource
                                     ->nullable()
                                     ->label('RG'),
                             ]),
-                        Forms\Components\Grid::make(['default' => 2, 'md' => 3])
+                        Forms\Components\Grid::make([
+                            'sm' => 1, // 1 coluna em dispositivos móveis
+                            'md' => 1,      // 2 colunas em tablets
+                            'lg' => 3,      // 3 colunas em desktops
+                        ])
                             ->schema([
                                 Forms\Components\Select::make('genero')
                                     ->options([
@@ -104,7 +113,11 @@ class PacienteResource extends Resource
                                     ->label('Profissão'),
                             ]),
                     ])
-                    ->columns(['default' => 1, 'md' => 1]),
+                    ->columns([
+                        'default' => 1, // 1 coluna em dispositivos móveis
+                        'md' => 2,      // 2 colunas em tablets
+                        'lg' => 3,      // 3 colunas em desktops
+                    ]),
 
                 Forms\Components\Fieldset::make('Endereço')
                     ->schema([
@@ -113,7 +126,11 @@ class PacienteResource extends Resource
                             ->maxLength(200)
                             ->label('Endereço Completo')
                             ->columnSpanFull(),
-                        Forms\Components\Grid::make(['default' => 1, 'md' => 2])
+                        Forms\Components\Grid::make([
+                            'default' => 1, // 1 coluna em dispositivos móveis
+                            'md' => 2,      // 2 colunas em tablets
+                            'lg' => 2,      // 3 colunas em desktops
+                        ])
                             ->schema([
                                 Forms\Components\Select::make('estado_id')
                                     ->label('Estado')
@@ -137,11 +154,19 @@ class PacienteResource extends Resource
                                     ->reactive(),
                             ]),
                     ])
-                    ->columns(['default' => 1, 'md' => 1]),
+                    ->columns([
+                        'default' => 1, // 1 coluna em dispositivos móveis
+                        'md' => 2,      // 2 colunas em tablets
+                        'lg' => 3,      // 3 colunas em desktops
+                    ]),
 
                 Forms\Components\Fieldset::make('Contato')
                     ->schema([
-                        Forms\Components\Grid::make(['default' => 1, 'md' => 2])
+                        Forms\Components\Grid::make([
+                            'default' => 1, // 1 coluna em dispositivos móveis
+                            'md' => 2,      // 2 colunas em tablets
+                            'lg' => 2,      // 3 colunas em desktops
+                        ])
                             ->schema([
                                 Forms\Components\TextInput::make('telefone')
                                     ->required(false)
@@ -156,11 +181,19 @@ class PacienteResource extends Resource
                                     ->label('Email'),
                             ]),
                     ])
-                    ->columns(['default' => 1, 'md' => 1]),
+                    ->columns([
+                        'default' => 1, // 1 coluna em dispositivos móveis
+                        'md' => 2,      // 2 colunas em tablets
+                        'lg' => 3,      // 3 colunas em desktops
+                    ]),
 
                 Forms\Components\Fieldset::make('Emergência')
                     ->schema([
-                        Forms\Components\Grid::make(['default' => 1, 'md' => 2])
+                        Forms\Components\Grid::make([
+                            'default' => 1, // 1 coluna em dispositivos móveis
+                            'md' => 2,      // 2 colunas em tablets
+                            'lg' => 2,      // 3 colunas em desktops
+                        ])
                             ->schema([
                                 Forms\Components\TextInput::make('contato_emergencia')
                                     ->required(false)
@@ -187,9 +220,17 @@ class PacienteResource extends Resource
                             ->nullable()
                             ->label('Convênio'),
                     ])
-                    ->columns(['default' => 1, 'md' => 1]),
+                    ->columns([
+                        'default' => 1, // 1 coluna em dispositivos móveis
+                        'md' => 2,      // 2 colunas em tablets
+                        'lg' => 3,      // 3 colunas em desktops
+                    ]),
             ])
-            ->columns(['default' => 1, 'md' => 2]);
+            ->columns([
+                'default' => 1, // 1 coluna em dispositivos móveis
+                'md' => 2,      // 2 colunas em tablets
+                'lg' => 3,      // 3 colunas em desktops
+            ]);
     }
 
     public static function table(Table $table): Table

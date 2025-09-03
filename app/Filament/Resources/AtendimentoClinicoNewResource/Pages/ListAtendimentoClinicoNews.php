@@ -19,7 +19,8 @@ class ListAtendimentoClinicoNews extends ListRecords
                 ->label('Novo Atendimento Clínico')                
                 ->icon('heroicon-o-plus')
                 ->color('primary')
-                ->modalHeading('Criar Novo Atendimento Clínico'),
+                ->modalHeading('Criar Novo Atendimento Clínico')
+                
                 
         ];
     }

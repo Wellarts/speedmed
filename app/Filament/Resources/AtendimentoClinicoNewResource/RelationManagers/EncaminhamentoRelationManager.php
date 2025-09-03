@@ -28,11 +28,18 @@ class EncaminhamentoRelationManager extends RelationManager
                     ->relationship('especialidade', 'nome')
                     ->required()
                     ->searchable()
+                    ->createOptionForm([
+                        Forms\Components\TextInput::make('nome')
+                            ->label('Nome da Especialidade')
+                            ->required()
+                            ->maxLength(255)
+                            ->unique(ignoreRecord: true),
+                    ])  
                     ->label('Especialidade'),
                 Forms\Components\Textarea::make('descricao')
-                    ->label('Descrição')  
-                    ->autosize(),                  
-                    
+                    ->label('Motivo do Encaminhamento')
+                    ->autosize(),
+
             ]);
     }
 
@@ -46,9 +53,9 @@ class EncaminhamentoRelationManager extends RelationManager
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('descricao')
-                    ->label('Descrição'),
-                    
-                
+                    ->label('Motivo do Encaminhamento'),
+
+
             ])
             ->filters([
                 //
