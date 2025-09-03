@@ -44,24 +44,24 @@ class ContasPagarResource extends Resource
             ->schema([
                 Forms\Components\Select::make('fornecedor_id')
                     ->label('Fornecedor')
-                    ->disabled(function ($context) {
-                        if ($context == 'edit') {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    })
+                    // ->disabled(function ($context) {
+                    //     if ($context == 'edit') {
+                    //         return true;
+                    //     } else {
+                    //         return false;
+                    //     }
+                    // })
 
                     ->options(Fornecedor::all()->pluck('nome', 'id')->toArray())
                     ->required(),
                 Forms\Components\TextInput::make('valor_total')
-                    ->disabled(function ($context) {
-                        if ($context == 'edit') {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    })
+                    // ->disabled(function ($context) {
+                    //     if ($context == 'edit') {
+                    //         return true;
+                    //     } else {
+                    //         return false;
+                    //     }
+                    // })
                     ->label('Valor Total')
                     ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                     ->numeric()
@@ -273,18 +273,24 @@ class ContasPagarResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->modalHeading('Editar conta a pagar')
                     ->after(function ($data, $record) {
-
-                        if ($record->status = 1) {
+                        // Exclui o lançamento anterior no fluxo de caixa
+                        \App\Models\FluxoCaixa::where('id_contas_pagars', $record->id)->delete();
+                        // Cria novo lançamento se status for true
+                        if ($record->status == 1) {
                             $addFluxoCaixa = [
-                                'valor' => ($record->valor_parcela * -1),
+                                'valor' => ($record->valor_pago * -1),
                                 'tipo'  => 'DEBITO',
-                                'obs'   => 'Pagamento da conta do fornecedor ' . $record->fornecedor->nome . ' da parcela nº: ' . $record->ordem_parcela . '',
+                                'obs'   => 'Pagamento da conta do fornecedor ' . $record->fornecedor->nome . ' da parcela nº: ' . $record->ordem_parcela,
+                                'id_contas_pagars' => $record->id,
                             ];
-
-                            FluxoCaixa::create($addFluxoCaixa);
+                            \App\Models\FluxoCaixa::create($addFluxoCaixa);
                         }
                     }),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->after(function ($record) {
+                        // Exclui o lançamento no fluxo de caixa ao excluir a conta
+                        \App\Models\FluxoCaixa::where('id_contas_pagars', $record->id)->delete();
+                    }),
 
             ])
             ->bulkActions([

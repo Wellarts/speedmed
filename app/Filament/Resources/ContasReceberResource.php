@@ -42,25 +42,25 @@ class ContasReceberResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('paciente_id')
-                    ->disabled(function ($context) {
-                        if ($context == 'edit') {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    })
+                    // ->disabled(function ($context) {
+                    //     if ($context == 'edit') {
+                    //         return true;
+                    //     } else {
+                    //         return false;
+                    //     }
+                    // })
                     ->label('Paciente')
                     ->searchable()
                     ->options(Paciente::all()->pluck('nome', 'id')->toArray())
                     ->required(),
                 Forms\Components\TextInput::make('valor_total')
-                    ->disabled(function ($context) {
-                        if ($context == 'edit') {
-                            return true;
-                        } else {
-                            return false;
-                        }
-                    })
+                    // ->disabled(function ($context) {
+                    //     if ($context == 'edit') {
+                    //         return true;
+                    //     } else {
+                    //         return false;
+                    //     }
+                    // })
                     ->label('Valor Total')
                     ->currencyMask(thousandSeparator: '.', decimalSeparator: ',', precision: 2)
                     ->numeric()
@@ -277,19 +277,24 @@ class ContasReceberResource extends Resource
                 Tables\Actions\EditAction::make()
                     ->modalHeading('Editar conta a receber')
                     ->after(function ($data, $record) {
-
+                        // Exclui o lançamento anterior no fluxo de caixa
+                        \App\Models\FluxoCaixa::where('id_contas_recebers', $record->id)->delete();
+                        // Cria novo lançamento se status for true
                         if ($record->status == true) {
-
                             $addFluxoCaixa = [
-                                'valor' => ($record->valor_parcela),
+                                'valor' => ($record->valor_recebido),
                                 'tipo'  => 'CREDITO',
-                                'obs'   => 'Recebimento da conta do paciente ' . $record->paciente->nome . ' da parcela nº: ' . $record->ordem_parcela . '',
+                                'obs'   => 'Recebimento da conta do paciente ' . $record->paciente->nome . ' da parcela nº: ' . $record->ordem_parcela,
+                                'id_contas_recebers' => $record->id,
                             ];
-
-                            FluxoCaixa::create($addFluxoCaixa);
+                            \App\Models\FluxoCaixa::create($addFluxoCaixa);
                         }
                     }),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\DeleteAction::make()
+                    ->after(function ($record) {
+                        // Exclui o lançamento no fluxo de caixa ao excluir a conta
+                        \App\Models\FluxoCaixa::where('id_contas_recebers', $record->id)->delete();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

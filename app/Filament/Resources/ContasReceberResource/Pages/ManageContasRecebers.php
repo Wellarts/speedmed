@@ -41,15 +41,17 @@ class ManageContasRecebers extends ManageRecords
                                     'status' => 0,
                                     'obs' => $data['obs'],
                                     'valor_parcela' => $valor_parcela,
+                                    
                                 ];
                                 ContasReceber::create($parcelas);
                             }
                         } else {
                             if (($data['status'] == 1)) {
                                 $addFluxoCaixa = [
-                                    'valor' => ($record->valor_total),
+                                    'valor' => ($record->valor_recebido),
                                     'tipo'  => 'CREDITO',
                                     'obs'   => 'Recebimento da conta do paciente ' . $record->paciente->nome . '',
+                                    'id_contas_recebers' => $record->id,
                                 ];
 
                                 FluxoCaixa::create($addFluxoCaixa);
