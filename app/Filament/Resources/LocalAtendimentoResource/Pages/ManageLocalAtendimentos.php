@@ -10,6 +10,8 @@ class ManageLocalAtendimentos extends ManageRecords
 {
     protected static string $resource = LocalAtendimentoResource::class;
 
+    protected static ?string $title = 'Locais de Atendimento';
+
     protected function getHeaderActions(): array
     {
         return [
