@@ -24,7 +24,6 @@ class ContasPagar extends Model
         'valor_pago',
         'obs',
         'categoria_id',
-        
     ];
 
     public function fornecedor()

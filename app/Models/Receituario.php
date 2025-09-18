@@ -14,6 +14,7 @@ class Receituario extends Model
     protected $fillable = [
         'atendimento_clinico_id',
         'medicamento_id',
+        'dosagem',
         'qtd',
         'forma_uso',
     ];
