@@ -250,22 +250,32 @@
             <h2>Informações do Paciente</h2>
             <table>
                 <tr>
-                    <td style="width: 33%;">
+                    <td style="width: 60%;">
                         <div class="field-pair">
                             <span class="label">Nome:</span>
                             <span class="value">{{ $prontuario->paciente->nome ?? 'Não informado' }}</span>
                         </div>
                     </td>
-                    <td style="width: 33%;">
+                    <td style="width: 40%;">
                         <div class="field-pair">
                             <span class="label">CPF:</span>
                             <span class="value">{{ $prontuario->paciente->cpf ?? 'Não informado' }}</span>
                         </div>
                     </td>
+                </tr>
+                 <tr>
+
+                    
                     <td style="width: 33%;">
                         <div class="field-pair">
                             <span class="label">Data de Nascimento:</span>
-                            <span class="value">{{ $prontuario->paciente->data_nascimento ?? 'Não informado' }}</span>
+                            <span class="value">{{ $prontuario->paciente->data_nascimento ? \Carbon\Carbon::parse($prontuario->paciente->data_nascimento)->format('d/m/Y') : 'Não informado' }}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="field-pair">
+                            <span class="label">Local do Atendimento:</span>
+                            <span class="value">{{ $prontuario->localAtendimento->nome ?? 'Não informado' }}</span>
                         </div>
                     </td>
                 </tr>

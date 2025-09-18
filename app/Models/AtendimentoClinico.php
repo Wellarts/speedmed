@@ -71,6 +71,11 @@ class AtendimentoClinico extends Model
         return $this->belongsTo(Paciente::class);
     }
 
+    public function localAtendimento()
+    {
+        return $this->belongsTo(LocalAtendimento::class);
+    }
+
     
     public function doenca()
     {

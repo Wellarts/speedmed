@@ -22,6 +22,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\Modal;
 use Illuminate\Support\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class AtendimentoClinicoNewResource extends Resource
 {
@@ -285,6 +286,32 @@ class AtendimentoClinicoNewResource extends Resource
                                         'lg' => 3,      // 3 colunas em desktops
                                     ]),
                             ]),
+                        Forms\Components\Select::make('local_atendimento_id')
+                            ->label('Local do Atendimento')
+                            ->relationship('localAtendimento', 'nome')
+                            ->preload()
+                            ->searchable()
+                            ->createOptionForm([
+                                Forms\Components\Grid::make([
+                                    'default' => 1, // 1 coluna em dispositivos móveis
+                                    'md' => 2,      // 2 colunas em tablets e acima
+                                ])->schema([
+                                    Forms\Components\TextInput::make('nome')
+                                        ->required()
+                                        ->placeHolder('Ex: Clínica Central')
+                                        ->columnSpanFull(),
+                                    Forms\Components\TextInput::make('endereco')
+                                        ->label('Endereço Completo')
+                                        ->placeHolder('Ex: Rua das Flores, 123, Centro, Cidade - Estado, CEP')
+                                        ->columnSpanFull(),
+                                    Forms\Components\TextInput::make('telefone')
+                                        ->mask('(99) 99999-9999'),
+                                    Forms\Components\TextInput::make('email')
+                                        ->email()
+                                        ->placeHolder('Ex: contato@clinica.com'),
+                                ])
+                            ])
+                            ->required(),
                         Forms\Components\DateTimePicker::make('data_hora_atendimento')
                             ->label('Data/Hora do Atendimento')
                             ->default(now()->format('Y-m-d H:i:s'))
@@ -707,11 +734,15 @@ class AtendimentoClinicoNewResource extends Resource
                 Tables\Columns\TextColumn::make('paciente.nome')
                     ->label('Paciente')
                     ->searchable()
-                    ->sortable(),
+                    ->sortable(),                
                 Tables\Columns\TextColumn::make('data_hora_atendimento')
                     ->label('Data/Hora do Atendimento')
                     ->alignCenter()
                     ->dateTime('d/m/Y H:i'),
+                Tables\Columns\TextColumn::make('localAtendimento.nome')
+                    ->label('Local do Atendimento')
+                    ->searchable()
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->alignCenter()
@@ -746,6 +777,33 @@ class AtendimentoClinicoNewResource extends Resource
                 SelectFilter::make('paciente_id')
                     ->relationship('paciente', 'nome')
                     ->label('Paciente'),
+                SelectFilter::make('local_atendimento_id')
+                    ->relationship('localAtendimento', 'nome')
+                    ->label('Local do Atendimento'),
+                Tables\Filters\Filter::make('data_hora_atendimento')
+                    ->form([
+                        Forms\Components\DatePicker::make('data_hora_atendimento_inicio')
+                            ->label('Data Início'),
+                        Forms\Components\DatePicker::make('data_hora_atendimento_fim')
+                            ->label('Data Fim'),
+                    ])
+                        ->query(function (Builder $query, array $data) {
+                            if (!empty($data['data_hora_atendimento_inicio']) && !empty($data['data_hora_atendimento_fim'])) {
+                                // Filtra entre datas (inclusive)
+                                return $query->whereBetween('data_hora_atendimento', [
+                                    Carbon::parse($data['data_hora_atendimento_inicio'])->startOfDay(),
+                                    Carbon::parse($data['data_hora_atendimento_fim'])->endOfDay(),
+                                ]);
+                            }
+                            if (!empty($data['data_hora_atendimento_inicio'])) {
+                                return $query->where('data_hora_atendimento', '>=', Carbon::parse($data['data_hora_atendimento_inicio'])->startOfDay());
+                            }
+                            if (!empty($data['data_hora_atendimento_fim'])) {
+                                return $query->where('data_hora_atendimento', '<=', Carbon::parse($data['data_hora_atendimento_fim'])->endOfDay());
+                            }
+                            return $query;
+                        })
+                    ->label('Data do Atendimento'),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
