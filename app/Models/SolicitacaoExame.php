@@ -29,7 +29,7 @@ class SolicitacaoExame extends Model
     
     public function exames()
     {
-        return $this->belongsToMany(Exame::class, 'atendimento_clinico_exame', 'atendimento_clinico_id', 'exame_id')->withTimestamps();
+        return $this->belongsToMany(Exame::class, 'atendimento_clinico_exame', 'solicitacao_exame_id', 'exame_id')->withTimestamps();
     }
 
     protected static function boot()

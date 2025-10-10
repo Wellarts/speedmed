@@ -3,9 +3,11 @@
 namespace App\Filament\Resources\AtendimentoClinicoNewResource\RelationManagers;
 
 use App\Models\Exame;
+use App\Models\GrupoExame;
 use Filament\Forms;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -37,10 +39,9 @@ class SolicitacaoExameRelationManager extends RelationManager
                             $exames = Exame::whereIn('id', $state)->pluck('nome')->map(function ($nome) {
                                 return $nome . ':';
                             })->implode("\n");
-                           
+
                             $livewire->ownerRecord->resultado_exames = $exames;
                             $livewire->ownerRecord->save();
-
                         }
                     })
                     ->preload()
@@ -68,8 +69,8 @@ class SolicitacaoExameRelationManager extends RelationManager
                                     ->default('1'),
                             ]),
                     ]),
-                       
-                
+
+
 
 
             ]);
@@ -88,7 +89,7 @@ class SolicitacaoExameRelationManager extends RelationManager
                     ->badge()
                     ->alignCenter()
                     ->listWithLineBreaks()
-                    
+
             ])
             ->filters([
                 //
@@ -99,7 +100,91 @@ class SolicitacaoExameRelationManager extends RelationManager
                     ->modalHeading('Solicitar Exames')
                     ->icon('heroicon-o-plus')
                     ->createAnother(false)
-                    ->disabled(fn($livewire) => $livewire->ownerRecord->solicitacaoExames()->count() > 0),
+                    ->visible(fn($livewire) => $livewire->ownerRecord->solicitacaoExames()->count() == 0),
+                // No arquivo SolicitacaoExameRelationManager.php
+
+                // No arquivo SolicitacaoExameRelationManager.php
+
+                Tables\Actions\Action::make('grupoExames')
+                    ->label('Solicitar Exames por Grupo')
+                    ->icon('heroicon-o-plus')
+                    ->color('primary')
+                    ->form([
+                        Forms\Components\Select::make('grupo_id')
+                            ->label('Grupo de Exames')
+                            ->options(GrupoExame::pluck('nome', 'id'))
+                            ->required()
+                            ->searchable()
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set) {
+                                // Quando um grupo é selecionado, mostra os exames do grupo
+                                if (!empty($state)) {
+                                    $grupo = GrupoExame::find($state);
+                                    $exameIds = $grupo->exame_id ?? [];
+
+                                    // Busca os nomes dos exames para mostrar como preview
+                                    $examesPreview = Exame::whereIn('id', $exameIds)
+                                        ->get()
+                                        ->map(function ($exame) {
+                                            return $exame->nome . ' (' . ($exame->tipo == '1' ? 'Laboratorial' : 'Imagem') . ')';
+                                        })
+                                        ->implode("\n");
+
+                                    $set('exames_preview', $examesPreview);
+                                } else {
+                                    $set('exames_preview', '');
+                                }
+                            }),
+
+                        Forms\Components\Textarea::make('exames_preview')
+                            ->label('Exames do Grupo')
+                            ->disabled()
+                            ->autosize()
+                            ->helperText('Estes exames serão adicionados ao atendimento'),
+                    ])
+                    ->action(function (array $data, $livewire) {
+                        $grupo = GrupoExame::find($data['grupo_id']);
+                        $exameIds = $grupo->exame_id ?? [];
+
+                        if (!empty($exameIds)) {
+                            $record = $livewire->ownerRecord;
+
+                            // CORREÇÃO: Usar o relacionamento através de SolicitacaoExame
+                            // Primeiro, verifica se já existe uma solicitação de exame
+                            $solicitacaoExame = $record->SolicitacaoExames()->first();
+
+                            if (!$solicitacaoExame) {
+                                // Se não existe, cria uma nova solicitação
+                                $solicitacaoExame = $record->SolicitacaoExames()->create([
+                                    'atendimento_clinico_id' => $record->id,
+                                ]);
+                            }
+
+                            // Adiciona os exames através do relacionamento correto
+                            $solicitacaoExame->exames()->syncWithoutDetaching($exameIds);
+
+                            // Atualiza o campo resultado_exames no atendimento clínico
+                            $examesNomes = Exame::whereIn('id', $exameIds)
+                                ->pluck('nome')
+                                ->map(function ($nome) {
+                                    return $nome . ':';
+                                })
+                                ->implode("\n");
+
+                            // Mantém os exames existentes e adiciona os novos
+                            $resultadoAtual = $record->resultado_exames ?? '';
+                            $novoResultado = trim($resultadoAtual . "\n" . $examesNomes);
+                            $record->resultado_exames = $novoResultado;
+                            $record->save();
+
+                            // Mostra mensagem de sucesso
+                            Notification::make()
+                                ->title('Exames adicionados com sucesso!')
+                                ->success()
+                                ->send();
+                        }
+                    })
+                    ->modalDescription('Selecione um grupo de exames para adicionar todos os exames do grupo ao atendimento.'),
                 Tables\Actions\Action::make('print')
                     ->label('Imprimir Exames')
                     ->icon('heroicon-o-printer')

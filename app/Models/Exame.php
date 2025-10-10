@@ -34,6 +34,11 @@ class Exame extends Model
         return $this->hasMany(SolicitacaoExame::class, 'exames_id');
     }
 
+    public function grupoExames()
+    {
+        return $this->hasMany(GrupoExame::class);
+    }
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
