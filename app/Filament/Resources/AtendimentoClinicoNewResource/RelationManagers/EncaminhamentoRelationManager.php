@@ -22,8 +22,8 @@ class EncaminhamentoRelationManager extends RelationManager
             ->schema([
                 Forms\Components\Hidden::make('atendimento_clinico_id')
                     ->default((function ($livewire): int {
-                                return $livewire->ownerRecord->id;
-                            })),
+                        return $livewire->ownerRecord->id;
+                    })),
                 Forms\Components\Select::make('especialidade_id')
                     ->relationship('especialidade', 'nome')
                     ->required()
@@ -34,10 +34,13 @@ class EncaminhamentoRelationManager extends RelationManager
                             ->required()
                             ->maxLength(255)
                             ->unique(ignoreRecord: true),
-                    ])  
+                    ])
                     ->label('Especialidade'),
                 Forms\Components\Textarea::make('descricao')
                     ->label('Motivo do Encaminhamento')
+                    ->maxLength(1000)
+                    ->live()
+                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                     ->autosize(),
 
             ]);
@@ -64,7 +67,7 @@ class EncaminhamentoRelationManager extends RelationManager
                 Tables\Actions\CreateAction::make()
                     ->label('Adicionar Encaminhamento')
                     ->icon('heroicon-o-plus')
-                    ->modalHeading('Adicionar Encaminhamentos'),                    
+                    ->modalHeading('Adicionar Encaminhamentos'),
                 Tables\Actions\Action::make('print')
                     ->label('Imprimir Encaminhamento')
                     ->icon('heroicon-o-printer')

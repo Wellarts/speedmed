@@ -107,11 +107,12 @@ class AtendimentoClinicoNewResource extends Resource
                                             ->maxLength(100)
                                             ->label('Nome Completo')
                                             ->columnSpanFull(),
-                                        Forms\Components\Grid::make(['
+                                        Forms\Components\Grid::make([
+                                            '
                                                 default' => 1, // 1 coluna em dispositivos móveis
-                                                'md' => 2,      // 2 colunas em tablets
-                                                'lg' => 3,      // 3 colunas em desktops
-                                            ])
+                                            'md' => 2,      // 2 colunas em tablets
+                                            'lg' => 3,      // 3 colunas em desktops
+                                        ])
                                             ->schema([
                                                 Forms\Components\DatePicker::make('data_nascimento')
                                                     ->required(false)
@@ -325,9 +326,15 @@ class AtendimentoClinicoNewResource extends Resource
                             ->schema([
                                 Forms\Components\Textarea::make('qp')
                                     ->label('Queixa Principal')
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->autosize(),
                                 Forms\Components\Textarea::make('hdp')
                                     ->label('História da Doença Atual')
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->autosize(),
 
                                 Forms\Components\CheckboxList::make('doencas_preexistentes')
@@ -373,9 +380,16 @@ class AtendimentoClinicoNewResource extends Resource
 
                                 Forms\Components\TextArea::make('data_inicio_sintomas')
                                     ->autosize()
+                                    ->maxLength(255)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->label('Data de Início dos Sintomas'),
                                 Forms\Components\Textarea::make('cirurgias_hospitalizacoes')
                                     ->label('Cirurgias/Hospitalizações')
+                                    ->autosize()
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->columnSpanFull(),
                             ])
                             ->columnSpanFull(),
@@ -390,6 +404,9 @@ class AtendimentoClinicoNewResource extends Resource
                                     ->columns(2),
                                 Forms\Components\TextArea::make('outros_alergias')
                                     ->autosize()
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->label('Outras Alergias'),
                                 Forms\Components\CheckboxList::make('medicamento_uso')
                                     ->label('Medicamentos em Uso Contínuo')
@@ -434,6 +451,9 @@ class AtendimentoClinicoNewResource extends Resource
                                     ->columns(2),
                                 Forms\Components\Textarea::make('medicamento_uso_detalhes')
                                     ->label('Detalhes dos Medicamentos em Uso')
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->autosize(),
                             ])
                             ->columnSpanFull(),
@@ -482,6 +502,9 @@ class AtendimentoClinicoNewResource extends Resource
                                     ->columns(2),
                                 Forms\Components\TextArea::make('doenca_familiar_parentesco')
                                     ->autosize()
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->label('Doenças na Família e Parentesco'),
                             ])
                             ->columnSpanFull(),
@@ -520,6 +543,9 @@ class AtendimentoClinicoNewResource extends Resource
                                     ->inline(false),
                                 Forms\Components\Textarea::make('obs_estilo_vida')
                                     ->label('Observações sobre Estilo de Vida')
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->autosize(),
                                 // ->columnSpanFull(),
                             ])
@@ -646,6 +672,9 @@ class AtendimentoClinicoNewResource extends Resource
                                     Forms\Components\Textarea::make('obs_exame_fisico')
                                         ->label('Observações do Exame Físico')
                                         ->columnSpan(3)
+                                        ->maxLength(3000)
+                                        ->live()
+                                        ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                         ->autosize(),
 
                                 ]),
@@ -665,9 +694,15 @@ class AtendimentoClinicoNewResource extends Resource
 
                                 Forms\Components\Textarea::make('hipotese_diagnostica_detalhes')
                                     ->label('Detalhes da Hipótese Diagnóstica')
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->autosize(),
                                 Forms\Components\Textarea::make('conduta')
                                     ->label('Conduta')
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->autosize(),
                                 Forms\Components\FileUpload::make('anexos_pre_exames')
                                     ->label('Anexos/Pré-Exames')
@@ -694,6 +729,9 @@ class AtendimentoClinicoNewResource extends Resource
                                 Forms\Components\Textarea::make('evolucao')
                                     ->label('Evolução')
                                     ->visible(fn($context) => $context == 'edit')
+                                    ->maxLength(3000)
+                                    ->live()
+                                    ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                                     ->autosize(),
                                 Forms\Components\DateTimePicker::make('data_hora_retorno')
                                     ->label('Data/Hora do Retorno')
@@ -730,11 +768,12 @@ class AtendimentoClinicoNewResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('data_hora_atendimento', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('paciente.nome')
                     ->label('Paciente')
                     ->searchable()
-                    ->sortable(),                
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('data_hora_atendimento')
                     ->label('Data/Hora do Atendimento')
                     ->alignCenter()
@@ -787,22 +826,22 @@ class AtendimentoClinicoNewResource extends Resource
                         Forms\Components\DatePicker::make('data_hora_atendimento_fim')
                             ->label('Data Fim'),
                     ])
-                        ->query(function (Builder $query, array $data) {
-                            if (!empty($data['data_hora_atendimento_inicio']) && !empty($data['data_hora_atendimento_fim'])) {
-                                // Filtra entre datas (inclusive)
-                                return $query->whereBetween('data_hora_atendimento', [
-                                    Carbon::parse($data['data_hora_atendimento_inicio'])->startOfDay(),
-                                    Carbon::parse($data['data_hora_atendimento_fim'])->endOfDay(),
-                                ]);
-                            }
-                            if (!empty($data['data_hora_atendimento_inicio'])) {
-                                return $query->where('data_hora_atendimento', '>=', Carbon::parse($data['data_hora_atendimento_inicio'])->startOfDay());
-                            }
-                            if (!empty($data['data_hora_atendimento_fim'])) {
-                                return $query->where('data_hora_atendimento', '<=', Carbon::parse($data['data_hora_atendimento_fim'])->endOfDay());
-                            }
-                            return $query;
-                        })
+                    ->query(function (Builder $query, array $data) {
+                        if (!empty($data['data_hora_atendimento_inicio']) && !empty($data['data_hora_atendimento_fim'])) {
+                            // Filtra entre datas (inclusive)
+                            return $query->whereBetween('data_hora_atendimento', [
+                                Carbon::parse($data['data_hora_atendimento_inicio'])->startOfDay(),
+                                Carbon::parse($data['data_hora_atendimento_fim'])->endOfDay(),
+                            ]);
+                        }
+                        if (!empty($data['data_hora_atendimento_inicio'])) {
+                            return $query->where('data_hora_atendimento', '>=', Carbon::parse($data['data_hora_atendimento_inicio'])->startOfDay());
+                        }
+                        if (!empty($data['data_hora_atendimento_fim'])) {
+                            return $query->where('data_hora_atendimento', '<=', Carbon::parse($data['data_hora_atendimento_fim'])->endOfDay());
+                        }
+                        return $query;
+                    })
                     ->label('Data do Atendimento'),
             ])
             ->actions([
@@ -821,9 +860,15 @@ class AtendimentoClinicoNewResource extends Resource
                     ->form([
                         Forms\Components\Textarea::make('evolucao')
                             ->label('Evolução')
+                            ->maxLength(3000)
+                            ->live()
+                            ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                             ->autosize(),
                         Forms\Components\TextArea::make('resultado_exames')
                             ->label('Resultado dos Exames')
+                            ->maxLength(3000)
+                            ->live()
+                            ->hint(fn($state, $component) => strlen($state ?? '') . ' / ' . $component->getMaxLength() . ' caracteres')
                             ->autosize(),
                         Forms\Components\FileUpload::make('anexos_resultados')
                             ->label('Anexos/Resultados')

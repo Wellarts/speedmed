@@ -66,10 +66,12 @@ class ReceituarioRelationManager extends RelationManager
                         Forms\Components\TextInput::make('dosagem')
                             ->required()
                             ->placeholder('Ex: 500mg')
+                            ->maxLength(50)
                             ->label('Dosagem'),
                         Forms\Components\TextInput::make('qtd')
                             ->required()
                             ->placeholder('Ex: 10 compridos')
+                            ->maxLength(255)
                             ->label('Quantidade'),
                         Forms\Components\TextInput::make('forma_uso')
                             ->label('Forma de Uso')
