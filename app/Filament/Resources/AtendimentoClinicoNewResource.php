@@ -23,6 +23,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Forms\Components\Modal;
 use Illuminate\Support\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use App\Forms\Components\AudioTextarea;
 
 class AtendimentoClinicoNewResource extends Resource
 {
@@ -43,6 +44,9 @@ class AtendimentoClinicoNewResource extends Resource
             ->schema([
                 Forms\Components\Fieldset::make('Dados do Paciente')
                     ->schema([
+                        AudioTextarea::make('transcricao')
+                                ->columnSpanFull()
+                                ->label('Transcrição do Áudio'),
                         Forms\Components\Select::make('medico_id')
                             ->label('Médico')
                             ->relationship('medico', 'nome')

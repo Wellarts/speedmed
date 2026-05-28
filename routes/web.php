@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\GroqAudioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -28,3 +29,5 @@ Route::get('/documentos/receituarioNewEspecial/{id}/print', [App\Http\Controller
 Route::get('/documentos/solicitacaoExames/{id}/print', [App\Http\Controllers\DocumentosController::class, 'printSolicitacaoExames'])->name('documentos.solicitacaoExames.print');
 Route::get('/documentos/encaminhamentos/{id}/print', [App\Http\Controllers\DocumentosController::class, 'printEncaminhamentos'])->name('documentos.encaminhamentos.print');
 Route::get('/documentos/documento/{id}/print', [App\Http\Controllers\DocumentosController::class, 'printDocumento'])->name('documentos.documento.print');
+Route::post('/groq/transcribe', [GroqAudioController::class, 'transcribe'])->name('groq.transcribe');
+Route::post('/groq/diarize',    [GroqAudioController::class, 'diarize'])->name('groq.diarize');

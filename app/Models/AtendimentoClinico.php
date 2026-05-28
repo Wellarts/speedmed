@@ -54,6 +54,7 @@ class AtendimentoClinico extends Model
         'anexos_resultados',
         'anexos_pre_exames',
         'resultado_exames',
+        'transcricao',
     ];
 
     protected $casts = [
@@ -63,7 +64,7 @@ class AtendimentoClinico extends Model
         'doenca_preexistente' => 'array',
         'hipotese_diagnostica_id' => 'array',
        
-        // 'hipotese_diagnostica_id' should not be cast to array or json
+        // 'hipotese_diagnostica_id' should not be cast to array ou json
     ];  
     
     public function paciente()
