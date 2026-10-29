@@ -34,6 +34,6 @@ return [
     'groq' => [
     'key'      => env('GROQ_API_KEY'),
     'base_uri' => env('GROQ_API_BASE_URI', 'https://api.groq.com'),
-],
+    ],
 
 ];
